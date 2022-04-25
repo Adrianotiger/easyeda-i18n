@@ -29,3 +29,7 @@ The script will re-translate every 5 seconds until you stop it. So it will trans
 
 ## Translation Files
 This will open all GitHub files as table inside a window. Maybe the word in another language is easier to translate than the english word.
+You can choose to show only untranslated texts, to be faster
+
+## About
+About dialog with the version of the scripts and a direct link to GitHub.

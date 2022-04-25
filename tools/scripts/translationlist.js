@@ -42,6 +42,7 @@ var FetchFiles = new class
     constructor()
     {
         this.loadingDiv = null;
+		this.showOnlyUntranslated = false;
         this.files = [];
         this.english = [];
     }
@@ -82,11 +83,19 @@ var FetchFiles = new class
             _CN("br", null, null, form);
         });
 
+		_CN("br", null, null, form);
+		_CN("hr", null, null, form);
+		let ibonlyempty = _CN("input", {type:"checkbox"}, null, form);
+		_CN("b", null, ["Show only untranslated fields"], form);
+		_CN("br", null, null, form);
+		_CN("br", null, null, form);
+
         let butt = _CN("div", {class:"dialog-button", style:"text-align:left"}, [_CN("a", {class:"l-btn"}, [_CN("span", {class:"l-btn-left"},["Apply"])])], form);
         butt.addEventListener("click", ()=>{
             let files = [];
             let fileIndex = 0;
             inps.forEach(i=>{if(i.checked) files[files.length] = this.files[fileIndex]; fileIndex++});
+			this.showOnlyUntranslated = ibonlyempty.checked;
 
             if(files.length == 0) 
             {
@@ -123,14 +132,14 @@ var FetchFiles = new class
         if(first)
         {
             if(txt[0] == '#' && txt.indexOf("=")<=0) this.english[this.english.length] = new TranslationGroup(txt.trim());
-            else this.english[this.english.length-1].AddTranslation(txt.trim(), txt.trim());
+            else this.english[this.english.length-1].AddTranslation(txt.trim(), txt.trimStart());
         }
     }
 
     _AddTranslationText(file, en, txt)
     {
         if(en[0] == '#' && en.indexOf("=")<=0) file.trans[file.trans.length] = new TranslationGroup(en.trim());
-        else file.trans[file.trans.length-1].AddTranslation(en.trim(), txt.trim());
+        else file.trans[file.trans.length-1].AddTranslation(en.trim(), txt.trimStart());
     }
 
     LoadTranslations()
@@ -146,6 +155,7 @@ var FetchFiles = new class
                     if(l.length < 2) return;
 
                     const p = l.split("=", 2);
+										
                     this._AddEnglishText(p[0], this.files[0].file == f.file);
 
                     if(p.length == 2) this._AddTranslationText(f, p[0], p[1]);
@@ -204,8 +214,18 @@ var FetchFiles = new class
             Object.keys(l.trans).forEach(l2=>{
                 if(group >= this.files[fileIndex].trans.length) return;
                 const trans = this.files[fileIndex].trans[group].GetTranslation(l2);
-                if(trans.length < 1 || trans == " ") rows[line].getElementsByTagName("td")[fileIndex+1].className = "tdempty";
-                else if(trans[trans.length - 1] == ' ') rows[line].getElementsByTagName("td")[fileIndex+1].className = "tdwarn";
+                if(trans.length < 1 || trans == " ") 
+				{
+					rows[line].getElementsByTagName("td")[fileIndex+1].className = "tdempty";
+				}
+                else if(trans[trans.length - 1] == ' ') 
+				{
+					rows[line].getElementsByTagName("td")[fileIndex+1].className = "tdwarn";
+				}
+				else if(this.showOnlyUntranslated)
+				{
+					rows[line].style.display = "none";
+				}
                 if(line < rows.length) rows[line++].getElementsByTagName("td")[fileIndex+1].textContent = trans;
             });
             group++;
